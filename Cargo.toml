@@ -1,0 +1,16 @@
+[package]
+name = "day_count_conventions"
+description = "Day Count Conventions for Financial Application."
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/MeetThePatel/day_count_conventions.rs"
+license-file = "LICENSE"
+readme = "README.md"
+keywords = ["finance", "time", "date"]
+categories = ["date-and-time", "finance"]
+
+[dependencies]
+chrono = "0.4.38"
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "katex_header.html", "--cfg", "docsrs"]
