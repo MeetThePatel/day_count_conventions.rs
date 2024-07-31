@@ -1,7 +1,8 @@
 [package]
 name = "day_count_conventions"
 description = "Day Count Conventions for Financial Application."
-version = "0.1.0"
+documentation = "https://docs.rs/day_count_conventions/latest/day_count_conventions/"
+version = "0.1.1"
 edition = "2021"
 repository = "https://github.com/MeetThePatel/day_count_conventions.rs"
 license-file = "LICENSE"
