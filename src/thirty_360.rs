@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{get_last_day_of_month, is_last_day_of_feb, DayCounter};
+use crate::{get_last_day_of_month, is_last_day_of_feb, DayCountFraction, DayCounter};
 
 use chrono::{Datelike, NaiveDate};
 
@@ -23,7 +23,7 @@ use chrono::{Datelike, NaiveDate};
 pub struct Thirty360;
 
 impl DayCounter for Thirty360 {
-    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> f64 {
+    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month() as i32;
         let mut d1 = start.day() as i32;
@@ -40,7 +40,7 @@ impl DayCounter for Thirty360 {
         }
 
         let numerator = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
-        f64::from(numerator) / 360.0
+        DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
 
@@ -69,7 +69,7 @@ impl Display for Thirty360 {
 pub struct ThirtyE360;
 
 impl DayCounter for ThirtyE360 {
-    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> f64 {
+    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month() as i32;
         let mut d1 = start.day() as i32;
@@ -86,7 +86,7 @@ impl DayCounter for ThirtyE360 {
         }
 
         let numerator = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
-        f64::from(numerator) / 360.0
+        DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
 
@@ -129,7 +129,7 @@ impl ThirtyE360ISDA {
 }
 
 impl DayCounter for ThirtyE360ISDA {
-    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> f64 {
+    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month();
         let mut d1 = start.day() as i32;
@@ -147,7 +147,7 @@ impl DayCounter for ThirtyE360ISDA {
         }
 
         let numerator = 360 * (y2 - y1) + 12 * ((m2 - m1) as i32) + (d2 - d1);
-        f64::from(numerator) / 360.0
+        DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
 
@@ -176,7 +176,7 @@ impl Display for ThirtyE360ISDA {
 pub struct ThirtyEPlus360ISDA;
 
 impl DayCounter for ThirtyEPlus360ISDA {
-    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> f64 {
+    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month() as i32;
         let mut d1 = start.day() as i32;
@@ -194,7 +194,7 @@ impl DayCounter for ThirtyEPlus360ISDA {
         }
 
         let numerator = 360 * (y2 - y1) + 12 * (m2 - m1) + (d2 - d1);
-        f64::from(numerator) / 360.0
+        DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
 

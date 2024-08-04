@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::DayCounter;
+use crate::{DayCountFraction, DayCounter};
 
 use chrono::NaiveDate;
 
@@ -12,8 +12,8 @@ use chrono::NaiveDate;
 pub struct OneOne;
 
 impl DayCounter for OneOne {
-    fn day_count_fraction(&self, _start: &NaiveDate, _end: &NaiveDate) -> f64 {
-        1.0
+    fn day_count_fraction(&self, _start: &NaiveDate, _end: &NaiveDate) -> DayCountFraction<Self> {
+        DayCountFraction::new(1.0)
     }
 }
 

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{is_feb29_between_exc_inc, DayCounter};
+use crate::{is_feb29_between_exc_inc, DayCountFraction, DayCounter};
 
 /// NL/365
 ///
@@ -16,14 +16,18 @@ use crate::{is_feb29_between_exc_inc, DayCounter};
 pub struct NL365;
 
 impl DayCounter for NL365 {
-    fn day_count_fraction(&self, start: &chrono::NaiveDate, end: &chrono::NaiveDate) -> f64 {
+    fn day_count_fraction(
+        &self,
+        start: &chrono::NaiveDate,
+        end: &chrono::NaiveDate,
+    ) -> DayCountFraction<Self> {
         let mut numerator = (*end - *start).num_days();
 
         if is_feb29_between_exc_inc(*start, *end) {
             numerator -= 1;
         }
 
-        numerator as f64 / 365.0
+        DayCountFraction::new(numerator as f64 / 365.0)
     }
 }
 

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::DayCounter;
+use crate::{DayCountFraction, DayCounter};
 
 use chrono::NaiveDate;
 
@@ -16,8 +16,8 @@ use chrono::NaiveDate;
 pub struct Actual364;
 
 impl DayCounter for Actual364 {
-    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> f64 {
-        (*end - *start).num_days() as f64 / 364.0
+    fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
+        DayCountFraction::new((*end - *start).num_days() as f64 / 364.0)
     }
 }
 

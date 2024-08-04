@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{is_feb29_between_exc_inc, DayCounter};
+use crate::{is_feb29_between_exc_inc, DayCountFraction, DayCounter};
 
 /// Actual/365 (Fixed)
 ///
@@ -15,8 +15,12 @@ use crate::{is_feb29_between_exc_inc, DayCounter};
 pub struct Actual365Fixed;
 
 impl DayCounter for Actual365Fixed {
-    fn day_count_fraction(&self, start: &chrono::NaiveDate, end: &chrono::NaiveDate) -> f64 {
-        (*end - *start).num_days() as f64 / 365.0
+    fn day_count_fraction(
+        &self,
+        start: &chrono::NaiveDate,
+        end: &chrono::NaiveDate,
+    ) -> DayCountFraction<Self> {
+        DayCountFraction::new((*end - *start).num_days() as f64 / 365.0)
     }
 }
 
@@ -41,13 +45,17 @@ impl Display for Actual365Fixed {
 pub struct Actual365A;
 
 impl DayCounter for Actual365A {
-    fn day_count_fraction(&self, start: &chrono::NaiveDate, end: &chrono::NaiveDate) -> f64 {
+    fn day_count_fraction(
+        &self,
+        start: &chrono::NaiveDate,
+        end: &chrono::NaiveDate,
+    ) -> DayCountFraction<Self> {
         let denominator = if is_feb29_between_exc_inc(*start, *end) {
             366
         } else {
             365
         };
-        (*end - *start).num_days() as f64 / f64::from(denominator)
+        DayCountFraction::new((*end - *start).num_days() as f64 / f64::from(denominator))
     }
 }
 

@@ -40,7 +40,43 @@
 /// is required: [`day_count_function`](DayCounter::day_count_fraction).
 pub trait DayCounter: std::fmt::Display {
     /// Given a two dates, calculate the day-count-fraction between the two dates.
-    fn day_count_fraction(&self, start: &chrono::NaiveDate, end: &chrono::NaiveDate) -> f64;
+    fn day_count_fraction(
+        &self,
+        start: &chrono::NaiveDate,
+        end: &chrono::NaiveDate,
+    ) -> DayCountFraction<Self>
+    where
+        Self: Sized;
+}
+
+/// Wrapper type for a day count fraction that contains information on which
+/// counter was used to generate the fraction.
+pub struct DayCountFraction<D>
+where
+    D: DayCounter,
+{
+    fraction: f64,
+    _marker: std::marker::PhantomData<D>,
+}
+impl<D> DayCountFraction<D>
+where
+    D: DayCounter,
+{
+    /// Create a new DayCountFraction with convention D.
+    pub fn new(fraction: f64) -> Self {
+        Self {
+            fraction,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+impl<D> PartialEq for DayCountFraction<D>
+where
+    D: DayCounter,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.fraction == other.fraction
+    }
 }
 
 mod actual_360;
@@ -69,3 +105,31 @@ pub use thirty_360::{Thirty360, ThirtyE360, ThirtyE360ISDA, ThirtyEPlus360ISDA};
 
 mod util;
 pub(crate) use util::{get_last_day_of_month, is_feb29_between_exc_inc, is_last_day_of_feb};
+
+#[cfg(test)]
+mod tests {
+    use chrono::NaiveDate;
+
+    use crate::{DayCounter, OneOne, NL365};
+
+    #[test]
+    fn comparison() {
+        let day1 = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let day2 = NaiveDate::from_ymd_opt(2024, 7, 1).unwrap();
+
+        let dc1 = NL365::default();
+        let dc2 = OneOne::default();
+
+        let yf1 = dc1.day_count_fraction(&day1, &day2);
+        let yf2 = dc2.day_count_fraction(&day1, &day2);
+
+        // The following line of code should not compile, as they come from
+        // two different day count conventions.
+        // yf1.eq(yf2);
+
+        // However, should it be the case that you *really* need to compare two
+        // year fractions of different conventions, you can always get the
+        // fraction.
+        assert_ne!(yf1.fraction, yf2.fraction);
+    }
+}
