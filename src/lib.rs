@@ -63,11 +63,20 @@ where
     D: DayCounter,
 {
     /// Create a new DayCountFraction with convention D.
-    pub fn new(fraction: f64) -> Self {
+    #[must_use]
+    #[inline]
+    pub const fn new(fraction: f64) -> Self {
         Self {
             fraction,
             _marker: std::marker::PhantomData,
         }
+    }
+
+    /// Access the fraction
+    #[must_use]
+    #[inline]
+    pub const fn get_fraction(&self) -> f64 {
+        self.fraction
     }
 }
 impl<D> PartialEq for DayCountFraction<D>
