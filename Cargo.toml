@@ -12,7 +12,11 @@ keywords = ["finance", "time", "date"]
 categories = ["date-and-time", "finance"]
 
 [dependencies]
-chrono = "0.4.38"
+chrono = { version = "0.4.38" }
+hifitime = { version = "3.3.0", optional = true }
+
+[features]
+hifitime = ["dep:hifitime"]
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "katex_header.html", "--cfg", "docsrs"]

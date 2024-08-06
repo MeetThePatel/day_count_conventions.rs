@@ -1,8 +1,9 @@
-use std::fmt::Display;
-
 use crate::{get_last_day_of_month, is_last_day_of_feb, DayCountFraction, DayCounter};
 
+#[cfg(not(feature = "hifitime"))]
 use chrono::{Datelike, NaiveDate};
+#[cfg(feature = "hifitime")]
+use hifitime::Epoch;
 
 /// 30/360
 ///
@@ -23,6 +24,7 @@ use chrono::{Datelike, NaiveDate};
 pub struct Thirty360;
 
 impl DayCounter for Thirty360 {
+    #[cfg(not(feature = "hifitime"))]
     fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month() as i32;
@@ -42,9 +44,24 @@ impl DayCounter for Thirty360 {
         let numerator = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
+    #[cfg(feature = "hifitime")]
+    fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
+        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+
+        if d1 == 31 {
+            d1 = 30;
+        }
+        if d2 == 31 && d1 >= 30 {
+            d2 = 30;
+        }
+
+        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
+        DayCountFraction::new(f64::from(numerator) / 360.0)
+    }
 }
 
-impl Display for Thirty360 {
+impl std::fmt::Display for Thirty360 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "30/360")
     }
@@ -69,6 +86,7 @@ impl Display for Thirty360 {
 pub struct ThirtyE360;
 
 impl DayCounter for ThirtyE360 {
+    #[cfg(not(feature = "hifitime"))]
     fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month() as i32;
@@ -88,9 +106,24 @@ impl DayCounter for ThirtyE360 {
         let numerator = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
+    #[cfg(feature = "hifitime")]
+    fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
+        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+
+        if d1 == 31 {
+            d1 = 30;
+        }
+        if d2 == 31 {
+            d2 = 30;
+        }
+
+        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
+        DayCountFraction::new(f64::from(numerator) / 360.0)
+    }
 }
 
-impl Display for ThirtyE360 {
+impl std::fmt::Display for ThirtyE360 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "30E/360")
     }
@@ -117,18 +150,32 @@ pub struct ThirtyE360ISDA {
     /// The termination date is the last date on which **new** obligations arise under the swap contract.
     ///
     /// Source: [2006 ISDA Definitions Chapter 3 Section 3](https://jollycontrarian.com/index.php?title=Termination_Date_-_ISDA_Definition)
+    #[cfg(not(feature = "hifitime"))]
     pub termination_date: NaiveDate,
+    /// The termination date is the last date on which **new** obligations arise under the swap contract.
+    ///
+    /// Source: [2006 ISDA Definitions Chapter 3 Section 3](https://jollycontrarian.com/index.php?title=Termination_Date_-_ISDA_Definition)
+    #[cfg(feature = "hifitime")]
+    pub termination_date: Epoch,
 }
 
 impl ThirtyE360ISDA {
+    #[cfg(not(feature = "hifitime"))]
     /// Create a new [`ThirtyE360ISDA`] with a given termination date.
     #[must_use]
     pub const fn new(termination_date: NaiveDate) -> Self {
         Self { termination_date }
     }
+    #[cfg(feature = "hifitime")]
+    /// Create a new [`ThirtyE360ISDA`] with a given termination date.
+    #[must_use]
+    pub const fn new(termination_date: Epoch) -> Self {
+        Self { termination_date }
+    }
 }
 
 impl DayCounter for ThirtyE360ISDA {
+    #[cfg(not(feature = "hifitime"))]
     fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month();
@@ -146,12 +193,28 @@ impl DayCounter for ThirtyE360ISDA {
             d2 = 30;
         }
 
-        let numerator = 360 * (y2 - y1) + 12 * ((m2 - m1) as i32) + (d2 - d1);
+        let numerator = 360 * (y2 - y1) + 30 * ((m2 - m1) as i32) + (d2 - d1);
+        DayCountFraction::new(f64::from(numerator) / 360.0)
+    }
+    #[cfg(feature = "hifitime")]
+    fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
+        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+
+        if get_last_day_of_month(y1, u32::from(m1)) == i32::from(d1) {
+            d1 = 30;
+        }
+
+        if is_last_day_of_feb(*end) && (self.termination_date != *end || d2 == 31) {
+            d2 = 30;
+        }
+
+        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
 
-impl Display for ThirtyE360ISDA {
+impl std::fmt::Display for ThirtyE360ISDA {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "30E/360 (ISDA)")
     }
@@ -176,6 +239,7 @@ impl Display for ThirtyE360ISDA {
 pub struct ThirtyEPlus360ISDA;
 
 impl DayCounter for ThirtyEPlus360ISDA {
+    #[cfg(not(feature = "hifitime"))]
     fn day_count_fraction(&self, start: &NaiveDate, end: &NaiveDate) -> DayCountFraction<Self> {
         let y1 = start.year();
         let m1 = start.month() as i32;
@@ -193,12 +257,28 @@ impl DayCounter for ThirtyEPlus360ISDA {
             m2 += 1;
         }
 
-        let numerator = 360 * (y2 - y1) + 12 * (m2 - m1) + (d2 - d1);
+        let numerator = 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
+        DayCountFraction::new(f64::from(numerator) / 360.0)
+    }
+    #[cfg(feature = "hifitime")]
+    fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
+        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, mut m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+
+        if d1 == 31 {
+            d1 = 30;
+        }
+        if d2 == 31 {
+            d2 = 1;
+            m2 += 1;
+        }
+
+        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
 
-impl Display for ThirtyEPlus360ISDA {
+impl std::fmt::Display for ThirtyEPlus360ISDA {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "30E+/360 (ISDA)")
     }

@@ -40,10 +40,20 @@
 /// is required: [`day_count_function`](DayCounter::day_count_fraction).
 pub trait DayCounter: std::fmt::Display + Copy + Clone {
     /// Given a two dates, calculate the day-count-fraction between the two dates.
+    #[cfg(not(feature = "hifitime"))]
     fn day_count_fraction(
         &self,
         start: &chrono::NaiveDate,
         end: &chrono::NaiveDate,
+    ) -> DayCountFraction<Self>
+    where
+        Self: Sized;
+    /// Given a two dates, calculate the day-count-fraction between the two dates.
+    #[cfg(feature = "hifitime")]
+    fn day_count_fraction(
+        &self,
+        start: &hifitime::Epoch,
+        end: &hifitime::Epoch,
     ) -> DayCountFraction<Self>
     where
         Self: Sized;
@@ -117,10 +127,14 @@ pub(crate) use util::{get_last_day_of_month, is_feb29_between_exc_inc, is_last_d
 
 #[cfg(test)]
 mod tests {
-    use chrono::NaiveDate;
-
     use crate::{DayCounter, OneOne, NL365};
 
+    #[cfg(not(feature = "hifitime"))]
+    use chrono::NaiveDate;
+    #[cfg(feature = "hifitime")]
+    use hifitime::Epoch;
+
+    #[cfg(not(feature = "hifitime"))]
     #[test]
     fn comparison() {
         let day1 = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
@@ -128,6 +142,27 @@ mod tests {
 
         let dc1 = NL365::default();
         let dc2 = OneOne::default();
+
+        let yf1 = dc1.day_count_fraction(&day1, &day2);
+        let yf2 = dc2.day_count_fraction(&day1, &day2);
+
+        // The following line of code should not compile, as they come from
+        // two different day count conventions.
+        // yf1.eq(yf2);
+
+        // However, should it be the case that you *really* need to compare two
+        // year fractions of different conventions, you can always get the
+        // fraction.
+        assert_ne!(yf1.fraction, yf2.fraction);
+    }
+    #[cfg(feature = "hifitime")]
+    #[test]
+    fn comparison() {
+        let day1 = Epoch::from_gregorian_utc_at_midnight(2024, 1, 1);
+        let day2 = Epoch::from_gregorian_utc_at_midnight(2024, 7, 1);
+
+        let dc1 = NL365;
+        let dc2 = OneOne;
 
         let yf1 = dc1.day_count_fraction(&day1, &day2);
         let yf2 = dc2.day_count_fraction(&day1, &day2);
