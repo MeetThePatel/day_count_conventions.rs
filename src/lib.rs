@@ -38,7 +38,7 @@
 
 /// The [`DayCounter`] trait represents any day count conventions. Only one method
 /// is required: [`day_count_function`](DayCounter::day_count_fraction).
-pub trait DayCounter: std::fmt::Display + Copy + Clone {
+pub trait DayCounter: std::fmt::Display + Default + Copy + Clone {
     /// Given a two dates, calculate the day-count-fraction between the two dates.
     #[cfg(not(feature = "hifitime"))]
     fn day_count_fraction(

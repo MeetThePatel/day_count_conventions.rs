@@ -145,7 +145,7 @@ impl std::fmt::Display for ThirtyE360 {
 /// \frac{360 (Y_2 - Y_1) + 30 (M_2 - M_1) + (D_2 - D_1)}{360}
 /// $$
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
 pub struct ThirtyE360ISDA {
     /// The termination date is the last date on which **new** obligations arise under the swap contract.
     ///
