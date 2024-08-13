@@ -46,8 +46,14 @@ impl DayCounter for Thirty360 {
     }
     #[cfg(feature = "hifitime")]
     fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
-        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
-        let (y2, m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+        let (y1, m1, d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, m2, d2, _, _, _, _) = end.to_gregorian_utc();
+
+        let m1 = m1 as i32;
+        let mut d1 = d1 as i32;
+
+        let m2 = m2 as i32;
+        let mut d2 = d2 as i32;
 
         if d1 == 31 {
             d1 = 30;
@@ -56,7 +62,7 @@ impl DayCounter for Thirty360 {
             d2 = 30;
         }
 
-        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
+        let numerator = (360 * (y2 - y1)) + (30 * (m2 - m1)) + (d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
@@ -108,8 +114,14 @@ impl DayCounter for ThirtyE360 {
     }
     #[cfg(feature = "hifitime")]
     fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
-        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
-        let (y2, m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+        let (y1, m1, d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, m2, d2, _, _, _, _) = end.to_gregorian_utc();
+
+        let m1 = m1 as i32;
+        let mut d1 = d1 as i32;
+
+        let m2 = m2 as i32;
+        let mut d2 = d2 as i32;
 
         if d1 == 31 {
             d1 = 30;
@@ -118,7 +130,7 @@ impl DayCounter for ThirtyE360 {
             d2 = 30;
         }
 
-        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
+        let numerator = (360 * (y2 - y1)) + (30 * (m2 - m1)) + (d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
@@ -198,10 +210,16 @@ impl DayCounter for ThirtyE360ISDA {
     }
     #[cfg(feature = "hifitime")]
     fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
-        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
-        let (y2, m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+        let (y1, m1, d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, m2, d2, _, _, _, _) = end.to_gregorian_utc();
 
-        if get_last_day_of_month(y1, u32::from(m1)) == i32::from(d1) {
+        let m1 = m1 as i32;
+        let mut d1 = d1 as i32;
+
+        let m2 = m2 as i32;
+        let mut d2 = d2 as i32;
+
+        if get_last_day_of_month(y1, m1.try_into().unwrap()) == d1 {
             d1 = 30;
         }
 
@@ -209,7 +227,7 @@ impl DayCounter for ThirtyE360ISDA {
             d2 = 30;
         }
 
-        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
+        let numerator = (360 * (y2 - y1)) + (30 * (m2 - m1)) + (d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
@@ -262,8 +280,14 @@ impl DayCounter for ThirtyEPlus360ISDA {
     }
     #[cfg(feature = "hifitime")]
     fn day_count_fraction(&self, start: &Epoch, end: &Epoch) -> DayCountFraction<Self> {
-        let (y1, m1, mut d1, _, _, _, _) = start.to_gregorian_utc();
-        let (y2, mut m2, mut d2, _, _, _, _) = end.to_gregorian_utc();
+        let (y1, m1, d1, _, _, _, _) = start.to_gregorian_utc();
+        let (y2, m2, d2, _, _, _, _) = end.to_gregorian_utc();
+
+        let m1 = m1 as i32;
+        let mut d1 = d1 as i32;
+
+        let mut m2 = m2 as i32;
+        let mut d2 = d2 as i32;
 
         if d1 == 31 {
             d1 = 30;
@@ -273,7 +297,7 @@ impl DayCounter for ThirtyEPlus360ISDA {
             m2 += 1;
         }
 
-        let numerator = (360 * (y2 - y1)) + (30 * i32::from(m2 - m1)) + i32::from(d2 - d1);
+        let numerator = (360 * (y2 - y1)) + (30 * (m2 - m1)) + (d2 - d1);
         DayCountFraction::new(f64::from(numerator) / 360.0)
     }
 }
