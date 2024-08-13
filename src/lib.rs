@@ -45,18 +45,14 @@ pub trait DayCounter: std::fmt::Display + Default + Copy + Clone {
         &self,
         start: &chrono::NaiveDate,
         end: &chrono::NaiveDate,
-    ) -> DayCountFraction<Self>
-    where
-        Self: Sized;
+    ) -> DayCountFraction<Self>;
     /// Given a two dates, calculate the day-count-fraction between the two dates.
     #[cfg(feature = "hifitime")]
     fn day_count_fraction(
         &self,
         start: &hifitime::Epoch,
         end: &hifitime::Epoch,
-    ) -> DayCountFraction<Self>
-    where
-        Self: Sized;
+    ) -> DayCountFraction<Self>;
 }
 
 /// Wrapper type for a day count fraction that contains information on which
